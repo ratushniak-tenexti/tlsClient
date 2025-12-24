@@ -343,9 +343,9 @@ export interface TlsClientOptions extends Omit<TlsClientDefaultOptions, 'default
     /** ID of the session [not recommended to use, use the SessionClient instead] */
     sessionId?: string | null;
     /** The target URL */
-    requestUrl?: string;
-    /** HTTP method (GET, POST, etc.) - internal use only */
-    requestMethod?: string;
+    requestUrl: string;
+    /** HTTP method (GET, POST, etc.) */
+    requestMethod: string;
 }
 
 /**
@@ -530,7 +530,7 @@ export class SessionClient {
         this.defaultOptions.defaultHeaders = headers;
     }
 
-    private combineOptions(options: Partial<TlsClientOptions>): TlsClientOptions {
+    private combineOptions(options: TlsClientOptions): TlsClientOptions {
         // Merge default headers with request headers
         const headers = {
             ...(this.defaultOptions.defaultHeaders ?? {}),
@@ -602,8 +602,17 @@ export class SessionClient {
         return response;
     }
 
-    private async request(options: Partial<TlsClientOptions>): Promise<TlsClientResponse> {
+    /**
+     * @description Send a request
+     * @param {TlsClientOptions} - The request options
+     * @returns {Promise<TlsClientResponse>} The response from the server
+     */
+    public async request(options: TlsClientOptions): Promise<TlsClientResponse> {
         await this.init();
+
+        if (options.sessionId === undefined) {
+          options.sessionId = this.sessionId;
+        }
 
         const combinedOptions = this.combineOptions(options);
         const request = await this.retryRequest(combinedOptions);
@@ -619,7 +628,6 @@ export class SessionClient {
      */
     public async get(url: URL | string, options: Partial<TlsClientOptions> = {}): Promise<TlsClientResponse> {
         return this.request({
-            sessionId: this.sessionId,
             requestUrl: this.convertUrl(url),
             requestMethod: 'GET',
             requestBody: null,
@@ -641,7 +649,6 @@ export class SessionClient {
         options: Partial<TlsClientOptions> = {}
     ): Promise<TlsClientResponse> {
         return this.request({
-            sessionId: this.sessionId,
             requestUrl: this.convertUrl(url),
             requestMethod: 'POST',
             requestBody: this.convertBody(body),
@@ -663,7 +670,6 @@ export class SessionClient {
         options: Partial<TlsClientOptions> = {}
     ): Promise<TlsClientResponse> {
         return this.request({
-            sessionId: this.sessionId,
             requestUrl: this.convertUrl(url),
             requestMethod: 'PUT',
             requestBody: this.convertBody(body),
@@ -680,7 +686,6 @@ export class SessionClient {
      */
     public async delete(url: URL | string, options: Partial<TlsClientOptions> = {}): Promise<TlsClientResponse> {
         return this.request({
-            sessionId: this.sessionId,
             requestUrl: this.convertUrl(url),
             requestMethod: 'DELETE',
             requestBody: '',
@@ -697,7 +702,6 @@ export class SessionClient {
      */
     public async head(url: URL | string, options: Partial<TlsClientOptions> = {}): Promise<TlsClientResponse> {
         return this.request({
-            sessionId: this.sessionId,
             requestUrl: this.convertUrl(url),
             requestMethod: 'HEAD',
             requestBody: '',
@@ -719,7 +723,6 @@ export class SessionClient {
         options: Partial<TlsClientOptions> = {}
     ): Promise<TlsClientResponse> {
         return this.request({
-            sessionId: this.sessionId,
             requestUrl: this.convertUrl(url),
             requestMethod: 'PATCH',
             requestBody: this.convertBody(body),
@@ -736,7 +739,6 @@ export class SessionClient {
      */
     public async options(url: URL | string, options: Partial<TlsClientOptions> = {}): Promise<TlsClientResponse> {
         return this.request({
-            sessionId: this.sessionId,
             requestUrl: this.convertUrl(url),
             requestMethod: 'OPTIONS',
             requestBody: '',
