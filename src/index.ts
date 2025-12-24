@@ -177,8 +177,8 @@ export interface CanidateCipherSuite {
  * Custom TLS client configuration for advanced fingerprint customization
  */
 export interface CustomTLSClient {
-    /** Certificate compression algorithm */
-    certCompressionAlgo?: CertCompressionAlgorithm;
+    /** Certificate compression algorithms */
+    certCompressionAlgos?: CertCompressionAlgorithm[];
     /** Connection flow identifier */
     connectionFlow?: number;
     /** HTTP/2 settings map */
